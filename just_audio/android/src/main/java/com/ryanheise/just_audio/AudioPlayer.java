@@ -366,27 +366,34 @@ public class AudioPlayer implements MethodCallHandler, Player.Listener, Metadata
     public void onPlayerError(PlaybackException error) {
         if (error instanceof ExoPlaybackException) {
             final ExoPlaybackException exoError = (ExoPlaybackException)error;
+            // aplayz -- for error logging
+            String errorMsg = "default";
             switch (exoError.type) {
             case ExoPlaybackException.TYPE_SOURCE:
                 Log.e(TAG, "TYPE_SOURCE: " + exoError.getSourceException().getMessage());
+                errorMsg = "TYPE_SOURCE error: " + exoError.getSourceException().toString(); // aplayz-add
                 break;
 
             case ExoPlaybackException.TYPE_RENDERER:
                 Log.e(TAG, "TYPE_RENDERER: " + exoError.getRendererException().getMessage());
+                errorMsg = "TYPE_RENDERER error: " + exoError.getRendererException().toString(); // aplayz-add
                 break;
 
             case ExoPlaybackException.TYPE_UNEXPECTED:
                 Log.e(TAG, "TYPE_UNEXPECTED: " + exoError.getUnexpectedException().getMessage());
+                errorMsg = "TYPE_UNEXPECTED error: " + exoError.getUnexpectedException().toString(); // aplayz-add
                 break;
-
             default:
                 Log.e(TAG, "default ExoPlaybackException: " + exoError.getUnexpectedException().getMessage());
+                errorMsg = "default ExoPlaybackException error: " + exoError.getUnexpectedException().toString(); // aplayz-add
             }
             // TODO: send both errorCode and type
-            sendError(String.valueOf(exoError.type), exoError.getMessage(), mapOf("index", currentIndex));
+            // sendError(String.valueOf(exoError.type), exoError.getMessage(), mapOf("index", currentIndex)); // original
+            sendError(String.valueOf(exoError.type), errorMsg, mapOf("index", currentIndex)); // aplayz-add
         } else {
             Log.e(TAG, "default PlaybackException: " + error.getMessage());
-            sendError(String.valueOf(error.errorCode), error.getMessage(), mapOf("index", currentIndex));
+            // sendError(String.valueOf(error.errorCode), error.getMessage(), mapOf("index", currentIndex)); // original
+            sendError(String.valueOf(error.errorCode), error.toString(), mapOf("index", currentIndex)); // aplayz-add
         }
         errorCount++;
         if (player.hasNextMediaItem() && currentIndex != null && errorCount <= 5) {
